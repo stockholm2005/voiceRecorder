@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 0.1
+apiversion: 2
+description: My module
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2012 by Your Company
+
+
+# these should not be edited
+name: voicerecorder
+moduleid: com.zookee.voicerecorder
+guid: e79e7ee6-18a6-4524-8a7e-c188522036c2
+platform: android
+minsdk: 2.1.1.GA
