@@ -109,6 +109,16 @@ public class RecorderProxy extends ActivityProxy
 			}
 		}
 		
+		try {
+			mPlayer.setDataSource(filePath);
+			mPlayer.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         mPlayer.start();
     }
 	
@@ -132,6 +142,17 @@ public class RecorderProxy extends ActivityProxy
 			}
 		}
     }
+	
+	@Kroll.method
+	public void reset(){
+		if(mPlayer!=null){
+			mPlayer.release();
+			mPlayer=null;
+		}if(mediarecorder!=null){
+			mediarecorder.release();
+			mediarecorder=null;
+		}
+	}
 	
 	@Kroll.setProperty
 	public void setRecordFile(String _fileName)
