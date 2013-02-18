@@ -150,6 +150,7 @@ public class RecorderProxy extends ActivityProxy implements
 	@Kroll.setProperty
 	public void setRecordFile(String _fileName) {
 		filePath = _fileName;
+		initPlayer();
 	}
 	
 	private void initPlayer(){
