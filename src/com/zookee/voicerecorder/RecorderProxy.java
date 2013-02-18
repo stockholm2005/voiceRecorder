@@ -23,181 +23,179 @@ import java.io.IOException;
 import java.util.HashMap;
 
 // This proxy can be created by calling Voicerecorder.createExample({message: "hello world"})
-@Kroll.proxy(creatableInModule=VoicerecorderModule.class)
-public class RecorderProxy extends ActivityProxy 
-	implements MediaRecorder.OnInfoListener,MediaPlayer.OnCompletionListener
-{
+@Kroll.proxy(creatableInModule = VoicerecorderModule.class)
+public class RecorderProxy extends ActivityProxy implements
+		MediaRecorder.OnInfoListener, MediaPlayer.OnCompletionListener {
 	// Standard Debugging variables
 	private static final String LCAT = "ExampleProxy";
-    int currertindex = 0;
-    
-    private MediaRecorder mediarecorder;
-    private MediaPlayer mPlayer = null;
+	int currertindex = 0;
+
+	private MediaRecorder mediarecorder;
+	private MediaPlayer mPlayer = null;
 	private KrollFunction maxDurationReachedCB = null;
 	private KrollFunction playCompleteCB = null;
-    
-    String filePath="";
-    private int maxDuration = 10000; 
+
+	String filePath = "";
+	private int maxDuration = 10000;
 
 	// Constructor
-	public RecorderProxy()
-	{
+	public RecorderProxy() {
 		super();
 	}
 
 	// Handle creation options
 	@Override
-	public void handleCreationDict(KrollDict options)
-	{
+	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
 	}
-	
+
 	// Methods
 	@Kroll.method
-	public void startRecord(HashMap args){
+	public void startRecord(HashMap args) {
 		Object callback;
-				
-		// Save the callback functions, verifying that they are of the correct type
+
+		// Save the callback functions, verifying that they are of the correct
+		// type
 		if (args.containsKey("durationReached")) {
 			callback = args.get("durationReached");
 			if (callback instanceof KrollFunction) {
-				maxDurationReachedCB = (KrollFunction)callback;
+				maxDurationReachedCB = (KrollFunction) callback;
 			}
 		}
-		 try {
-             mediarecorder = new MediaRecorder();
-             mediarecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-             mediarecorder
-                     .setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-             mediarecorder
-                     .setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-             mediarecorder.setMaxDuration(maxDuration);
-             mediarecorder.setOnInfoListener(this);
+		try {
+			if(mPlayer != null){
+				mPlayer.reset();
+			}
+			mediarecorder = new MediaRecorder();
+			mediarecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			mediarecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+			mediarecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+			mediarecorder.setMaxDuration(maxDuration);
+			mediarecorder.setOnInfoListener(this);
 
-             Log.d("voicerecorder",filePath);
-             mediarecorder.setOutputFile(filePath);
-              mediarecorder.prepare();
-             mediarecorder.start();
-         } catch (IOException e) {
-             // TODO Auto-generated catch block
-             e.printStackTrace();
-         }
+			Log.d("voicerecorder", filePath);
+			mediarecorder.setOutputFile(filePath);
+			mediarecorder.prepare();
+			mediarecorder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Kroll.method
-	public void stopRecord(){
-		try{
-			if(mediarecorder!=null){
+	public void stopRecord() {
+		try {
+			if (mediarecorder != null) {
 				mediarecorder.stop();
 				mediarecorder.release();
 				mediarecorder = null;
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	@Kroll.method
-    public void startPlaying(HashMap args) {
-		Object callback;
 		
-		// Save the callback functions, verifying that they are of the correct type
+		initPlayer();
+	}
+
+	@Kroll.method
+	public void startPlaying(HashMap args) {
+		Object callback;
+
+		// Save the callback functions, verifying that they are of the correct
+		// type
 		if (args.containsKey("playCompleted")) {
 			callback = args.get("playCompleted");
 			if (callback instanceof KrollFunction) {
-				playCompleteCB = (KrollFunction)callback;
+				playCompleteCB = (KrollFunction) callback;
 			}
 		}
-		
-		try {
-			mPlayer.setDataSource(filePath);
-			mPlayer.prepare();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        mPlayer.start();
-    }
-	
+
+		mPlayer.start();
+	}
+
 	@Kroll.method
-	public void pause(){
-		try{
+	public void pause() {
+		try {
 			mPlayer.pause();
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Kroll.method
-    public void stopPlaying() {
-		if(mPlayer!=null){
-			try{
-			mPlayer.stop();
-			mPlayer.reset();
-			}catch(Exception e){
+	public void stopPlaying() {
+		if (mPlayer != null) {
+			try {
+				mPlayer.stop();
+				mPlayer.reset();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-    }
-	
-	@Kroll.method
-	public void reset(){
-		if(mPlayer!=null){
-			mPlayer.release();
-			mPlayer=null;
-		}if(mediarecorder!=null){
-			mediarecorder.release();
-			mediarecorder=null;
-		}
 	}
-	
-	@Kroll.setProperty
-	public void setRecordFile(String _fileName)
-	{
-		if(mPlayer == null){
-			mPlayer = new MediaPlayer();
+
+	@Kroll.method
+	public void reset() {
+		if (mPlayer != null) {
+			mPlayer.release();
+			mPlayer = null;
 		}
-		filePath=_fileName;
-        try {
-            mPlayer.setDataSource(filePath);
-            mPlayer.setOnCompletionListener(this);
-            mPlayer.prepare();
-        } catch (IOException e) {
-        		e.printStackTrace();
-        }
+		if (mediarecorder != null) {
+			mediarecorder.reset();
+			mediarecorder.release();
+			mediarecorder = null;
+		}
 	}
 
 	@Kroll.setProperty
-	public void setMaxDuration(int _max){
+	public void setRecordFile(String _fileName) {
+		filePath = _fileName;
+	}
+	
+	private void initPlayer(){
+		if (mPlayer == null) {
+			mPlayer = new MediaPlayer();
+		}
+		try {
+			mPlayer.reset();
+			mPlayer.setDataSource(filePath);
+			mPlayer.setOnCompletionListener(this);
+			mPlayer.prepare();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	@Kroll.setProperty
+	public void setMaxDuration(int _max) {
 		maxDuration = _max;
 	}
+
 	@Override
 	public void onInfo(MediaRecorder mr, int arg1, int arg2) {
-		// TODO Auto-generated method stub
 		if (arg1 == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-	         mr.stop();
-	         mr.release();
-	         mr = null;
-	         HashMap<String, String> event = new HashMap<String, String>();
+			mr.stop();
+			mr.release();
+			mr = null;
+			initPlayer();
+			HashMap<String, String> event = new HashMap<String, String>();
 			event.put("message", "message");
 			event.put("title", "title");
 			maxDurationReachedCB.call(getKrollObject(), event);
-	      }
+		}
 	}
 
 	@Override
 	public void onCompletion(MediaPlayer mr) {
-		//don't reset() here, reset will set the mr to idel state, then you
-		//have to reset the data source, and prepare() again.refer to:
-		//http://developer.android.com/images/mediaplayer_state_diagram.gif
-		//mr.reset();
-		// TODO Auto-generated method stub
+		// don't reset() here, reset will set the mr to idle state, then you
+		// have to reset the data source, and prepare() again.refer to:
+		// http://developer.android.com/images/mediaplayer_state_diagram.gif
+		// mr.reset();
+		// now in  play completed state
 		HashMap<String, String> event = new HashMap<String, String>();
 		event.put("message", "message");
 		event.put("title", "title");
 		playCompleteCB.call(getKrollObject(), event);
 	}
+
 }
