@@ -175,10 +175,6 @@ public class RecorderProxy extends ActivityProxy implements
 	@Override
 	public void onInfo(MediaRecorder mr, int arg1, int arg2) {
 		if (arg1 == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-			mr.stop();
-			mr.release();
-			mr = null;
-			initPlayer();
 			HashMap<String, String> event = new HashMap<String, String>();
 			event.put("message", "message");
 			event.put("title", "title");
