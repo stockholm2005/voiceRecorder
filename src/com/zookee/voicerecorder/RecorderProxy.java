@@ -68,8 +68,8 @@ public class RecorderProxy extends ActivityProxy implements
 			}
 			mediarecorder = new MediaRecorder();
 			mediarecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-			mediarecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-			mediarecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+			mediarecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+			mediarecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			mediarecorder.setMaxDuration(maxDuration);
 			mediarecorder.setOnInfoListener(this);
 
